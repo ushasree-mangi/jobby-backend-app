@@ -37,15 +37,16 @@ const uuidv4=v4
 
 
 
-app.use(cors(corsOptions));*/
+;*/
 
 const corsOptions={
+  origin:'*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow cookies and credentials
   }
 
-app.options('*', cors(corsOptions));
+app.use(cors(corsOptions))
 
 app.use(express.json())
 
