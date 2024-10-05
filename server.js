@@ -53,7 +53,7 @@ app.use(express.json())
 
 const PORT =  process.env.PORT || 4000
 
-const dbPath = path.join(__dirname, "shopperAppDatabase.db");
+const dbPath = path.join(__dirname, "jobbyAppDatabase.db");
 
 let db = null;
 
@@ -106,12 +106,12 @@ app.post("/register/", async (request, response) => {
   const id=uuidv4()
  
   const hashedPassword = await bcrypt.hash(password, 10);
-  const selectUserQuery = `SELECT * FROM users WHERE username = ?`;
+  const selectUserQuery = `SELECT * FROM user WHERE username = ?`;
   const dbUser = await db.get(selectUserQuery, [username]);
 
   if (dbUser === undefined) {
     const createUserQuery = `
-      INSERT INTO users (id, username, password) 
+      INSERT INTO user (id, username, password) 
       VALUES (?, ?, ?)`;
     const dbResponse = await db.run(createUserQuery, [id, username, hashedPassword]);
 
@@ -128,7 +128,7 @@ app.post("/register/", async (request, response) => {
 //Login Api
 app.post("/login", async (request, response) => {
 const { username, password } = request.body;
-const selectUserQuery = `SELECT * FROM users WHERE username = ?`;
+const selectUserQuery = `SELECT * FROM user WHERE username = ?`;
   const dbUser = await db.get(selectUserQuery, [username]);
 
 if (dbUser === undefined) {
