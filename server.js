@@ -154,26 +154,39 @@ if (dbUser === undefined) {
 
 //filtering jobs
 
-app.get("/jobs",authenticateToken,async(request,response)=>{
-  const {search_input , employment_type ,minimum_package}=request.query 
-  const employment_type_list=employment_type.split(',')
-  try{
-      // Dynamically create placeholders for the IN clause based on the length of employment_type_list
-    const placeholders = employment_type_list.map(() => '?').join(',');
+app.get("/jobs", authenticateToken, async (request, response) => {
+  const { search_input, employment_type, minimum_package } = request.query;
+  
+  // If employment_type is undefined or empty, handle it as an empty array
+  const employment_type_list = employment_type ? employment_type.split(',') : [];
 
-    const dbQuery=`
-    SELECT * FROM jobs WHERE title LIKE ? AND  employment_type IN (${placeholders})  AND package_per_annum >= ? `
-    const result = await db.all(dbQuery, [`%${search_input}%`, ...employment_type_list, minimum_package]);
+  try {
+    // Dynamically create placeholders for the IN clause only if employment_type_list is not empty
+    let dbQuery = `
+      SELECT * FROM jobs 
+      WHERE title LIKE ? 
+      AND package_per_annum >= ?`;
 
-    response.status(201).json({jobs:result})
+    const queryParams = [`%${search_input}%`, minimum_package];
 
-  }catch(e){
-    console.log(e)
-    response.status(400).json({error_msg:"An Error occurred !"})
+    // If employment_type_list has values, add the IN clause
+    if (employment_type_list.length > 0) {
+      const placeholders = employment_type_list.map(() => '?').join(',');
+      dbQuery += ` AND employment_type IN (${placeholders})`;
+      queryParams.push(...employment_type_list);
+    }
+
+    // Execute the query with dynamic queryParams
+    const result = await db.all(dbQuery, queryParams);
+
+    response.status(200).json({ jobs: result });
+
+  } catch (e) {
+    console.log(e);
+    response.status(400).json({ error_msg: "An Error occurred!" });
   }
+});
 
-
-})
 
 //getting particular job details
 
