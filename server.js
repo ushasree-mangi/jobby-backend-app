@@ -40,7 +40,7 @@ const uuidv4=v4
 ;*/
 
 const corsOptions={
-  origin:'*',
+  origin:['http://localhost:3000', 'https://your-frontend-app-url.com'], // Use your frontend URL(s)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow cookies and credentials
@@ -151,4 +151,46 @@ if (dbUser === undefined) {
   }
 }
 });
+
+//filtering jobs
+
+app.get("/jobs",authenticateToken,async(request,response)=>{
+  const {search_input , employment_type ,minimum_package}=request.query 
+  const employment_type_list=employment_type.split(',')
+  try{
+      // Dynamically create placeholders for the IN clause based on the length of employment_type_list
+    const placeholders = employment_type_list.map(() => '?').join(',');
+
+    const dbQuery=`
+    SELECT * FROM jobs WHERE title LIKE ? AND  employment_type IN (${placeholders})  AND package_per_annum >= ? `
+    const result = await db.all(dbQuery, [`%${search_input}%`, ...employment_type_list, minimum_package]);
+
+    response.status(201).json({jobs:result})
+
+  }catch(e){
+    console.log(e)
+    response.status(400).json({error_msg:"An Error occurred !"})
+  }
+
+
+})
+
+//getting particular job details
+
+app.get("/job/:jobId",authenticateToken,async(request,response)=>{
+  const {jobId}=request.params 
+  try{
+
+    const dbQuery=`
+    SELECT * FROM jobs where id = ?`
+    const result=await db.all(dbQuery ,[jobId ])
+
+    response.status(201).json({job_details:result})
+
+  }catch(e){
+    response.status(400).json({error_msg:"An Error occurred !"})
+  }
+
+
+})
 
