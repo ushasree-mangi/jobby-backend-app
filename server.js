@@ -40,7 +40,7 @@ const uuidv4=v4
 ;*/
 
 const corsOptions={
-  origin:['http://localhost:3000', 'https://your-frontend-app-url.com'], // Use your frontend URL(s)
+  origin:['http://localhost:3000', 'https://job-finder-app-delta.vercel.app'], // Use your frontend URL(s)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow cookies and credentials
